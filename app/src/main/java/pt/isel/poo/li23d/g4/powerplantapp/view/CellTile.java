@@ -4,45 +4,38 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 
+import java.lang.reflect.Constructor;
+
 import pt.isel.poo.li23d.g4.powerplantapp.model.Cell;
-import pt.isel.poo.li23d.g4.powerplantapp.model.*;
 import pt.isel.poo.tile.Tile;
 
 public abstract class CellTile implements Tile {
-    public static final int SIDE = 3;
     protected Cell cell;
     public Paint paint;
+    public static final String PACKAGE_PATH = "pt.isel.poo.li23d.g4.powerplantapp.view.";
 
     protected CellTile(Cell cell) {
         this.cell = cell;
         paint = new Paint();
         paint.setStyle(Paint.Style.FILL);
 
-        if (cell.isPowered()){
-            paint.setColor(Color.GREEN);
-        }
-        else{
-            paint.setColor(Color.DKGRAY);
-        }
+        paint();
     }
 
     public static CellTile newInstance(Cell c){
-        if (c instanceof HouseCell){
-            return new HouseTile(c);
+        try{
+            Class type = c.getClass();
+            String path = type.getName();
+            String name = path.substring(Cell.PACKAGE_PATH.length(),path.length() - 4); //e.g. pt.isel.poo.li23d.g4.powerplantapp.model.HouseCell >> House
+            Class tile = Class.forName(PACKAGE_PATH + name + "Tile");
+            Constructor<?> ctor = tile.getConstructor(Cell.class);
+
+            return (CellTile)ctor.newInstance(c);
         }
-        else if (c instanceof LineCell){
-            return new LineTile(c);
+        catch (Exception e){
+            System.out.println("Error creating new CellTile object"+ ": " + e.getMessage());
         }
-        else if (c instanceof PowerCell){
-            return new PowerTile(c);
-        }
-        else if (c instanceof CurveCell){
-            return new CurveTile(c);
-        }
-        else if (c instanceof BranchCell){
-            return new BranchTile(c);
-        }
-        else return new SpaceTile(c);
+        return null;
     }
 
     public void paint() {
@@ -58,7 +51,6 @@ public abstract class CellTile implements Tile {
 
     public boolean setSelect(boolean selected){
         return true;
-        //TODO
     }
 
 }

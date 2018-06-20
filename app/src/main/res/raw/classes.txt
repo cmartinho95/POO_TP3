@@ -1,3 +1,3 @@
+6
 H P T c - .
-
 HouseCell PowerCell BranchCell CurveCell LineCell SpaceCell

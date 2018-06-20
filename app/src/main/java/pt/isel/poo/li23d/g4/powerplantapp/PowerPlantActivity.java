@@ -9,6 +9,7 @@ import android.widget.TextView;
 import pt.isel.poo.li23d.g4.powerplantapp.model.*;
 import pt.isel.poo.li23d.g4.powerplantapp.view.*;
 
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -18,6 +19,7 @@ import pt.isel.poo.tile.TilePanel;
 
 public class PowerPlantActivity extends AppCompatActivity implements Plant.ModelListener {
     private static final String LEVELS_FILE = "levels.txt";
+    private static final String CLASSES_FILE = "classes.txt";
     private static final int LEVELS = 3;
     private Plant model;
     private TilePanel panel;
@@ -60,8 +62,43 @@ public class PowerPlantActivity extends AppCompatActivity implements Plant.Model
         PoweredHouseImg = new Img(this, R.drawable.house_on);
         UnpoweredHouseImg = new Img(this, R.drawable.house_off);
 
-        loadLevel(1);
-        playLevel();
+        if (savedInstanceState == null){
+            level = 1;
+            run();
+            model.cutPower();
+            model.connectPower();
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("level",level);
+        outState.putInt("moves", model.getMoves());
+
+        for(int i = 0; i < model.getHeight(); i++){
+            for (int j = 0; j < model.getWidth(); j++){
+                outState.putChar(i + "," + j, model.getCell(i,j).getDirection());
+            }
+        }
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle inState){
+        super.onRestoreInstanceState(inState);
+        level = inState.getInt("level");
+        run();
+        model.setMoves(inState.getInt("moves"));
+
+        char dir;
+        for(int i = 0; i < model.getHeight(); i++){
+            for (int j = 0; j < model.getWidth(); j++){
+                dir = inState.getChar(i + "," + j);
+                model.getCell(i,j).setDirection(dir);
+            }
+        }
+        model.cutPower();
+        model.connectPower();
     }
 
     private class ViewListener implements OnTileTouchListener {
@@ -78,6 +115,12 @@ public class PowerPlantActivity extends AppCompatActivity implements Plant.Model
         public void onDragCancel(){}
     }
 
+
+    private void run(){
+        loadLevel(level);
+        playLevel();
+    }
+
     private boolean playLevel() {
         for (int l = 0; l < model.getHeight(); l++) {
             for (int c = 0; c < model.getWidth(); c++) {
@@ -89,6 +132,28 @@ public class PowerPlantActivity extends AppCompatActivity implements Plant.Model
 
     private boolean loadLevel(int n) {
         Scanner in = null;
+        try{
+            in = new Scanner(getResources().openRawResource(R.raw.classes));
+            ArrayList<Character> letters = new ArrayList<>();
+            ArrayList<String> classes = new ArrayList<>();
+            String s;
+            int size = Integer.parseInt(in.next());
+
+            for (int i = 0; i < size; i++){
+                s = in.next();
+                char c = s.charAt(0);
+                letters.add(c);
+            }
+            for (int i = 0; i < size; i++){
+                s = in.next();
+                classes.add(s);
+            }
+            Cell.setClasses(letters, classes);
+        }
+        catch(Exception e){
+            System.out.println("Error loading file \""+CLASSES_FILE+"\":\n"+e.getMessage());
+        }
+
         try {
             in = new Scanner(getResources().openRawResource(R.raw.levels)); // Scanner to read the file
             model = new Loader(in).load(n);                     // Load level from scanner
@@ -129,8 +194,7 @@ public class PowerPlantActivity extends AppCompatActivity implements Plant.Model
 
     private void newLevel(){
         if (++level <= LEVELS){
-            loadLevel(++level);
-            playLevel();
+            run();
             winMessage.setVisibility(View.INVISIBLE);
             nextLevel.setVisibility(View.INVISIBLE);
             nextLevel.setClickable(false);
@@ -146,7 +210,7 @@ public class PowerPlantActivity extends AppCompatActivity implements Plant.Model
         }
     }
 
-    public boolean cellChanged(int lin, int col, Cell cell) {
+    public boolean cellChanged(int lin, int col) {
         if (!winLevel()){
             movesView.setText(model.getMoves() + "");
             movesView.invalidate();

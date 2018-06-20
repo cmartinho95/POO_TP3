@@ -13,7 +13,11 @@ public class HouseTile extends PointTile {
 
     public void draw(Canvas canvas, int side){
         super.draw(canvas, side);
-        PowerPlantActivity.UnpoweredHouseImg.draw(canvas, side, side, paint);
+        if (cell.isPowered()){
+            PowerPlantActivity.PoweredHouseImg.draw(canvas, side, side, paint);
+        }
+        else{
+            PowerPlantActivity.UnpoweredHouseImg.draw(canvas, side, side, paint);
+        }
     }
-
 }

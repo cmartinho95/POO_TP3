@@ -31,41 +31,4 @@ public class BranchTile extends CellTile {
                 break;
         }
     }
-/*
-    public void repaint(){
-        clear();
-        paint();
-
-        switch(cell.getDirection()){
-            case 'E':
-                print(0, 1, '|');
-                print(1, 1, 'o');
-                print(1, 2, '-');
-                print(2, 1, '|');
-                break;
-
-            case 'W':
-                print(0, 1, '|');
-                print(1, 1, 'o');
-                print(1, 0, '-');
-                print(2, 1, '|');
-                break;
-
-            case 'N':
-                print(0, 1, '|');
-                print(1, 1, 'o');
-                print(1, 0, '-');
-                print(1, 2, '-');
-                break;
-
-            case 'S':
-                print(2, 1, '|');
-                print(1, 1, 'o');
-                print(1, 0, '-');
-                print(1, 2, '-');
-                break;
-
-        }
-    }
-    */
 }

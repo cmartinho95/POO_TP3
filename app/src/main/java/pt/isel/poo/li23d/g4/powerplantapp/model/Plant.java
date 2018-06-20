@@ -9,7 +9,7 @@ public class Plant {
     private Cell current;
 
     public interface ModelListener {
-        boolean cellChanged(int lin, int col, Cell cell);
+        boolean cellChanged(int lin, int col);
     }
 
     public Plant(int h, int w){
@@ -47,6 +47,10 @@ public class Plant {
         return moves;
     }
 
+    public void setMoves(int value){
+        moves = value;
+    }
+
     /* CORPO DA CLASSE*/
 
     public void init(){
@@ -62,7 +66,7 @@ public class Plant {
         for(int i = 0 ; i < height; i++){
             for (int j = 0; j < width; j++){
                 if (map[i][j].isActionable()){
-                    map[i][j].isConnected();
+                    map[i][j].checkConnections();
                 }
             }
         }
@@ -86,7 +90,7 @@ public class Plant {
                     map[i][j].setPowered(false);
                     map[i][j].setChecked(false);
                 }
-                map[i][j].isConnected();
+                map[i][j].checkConnections();
                 if(!map[i][j].isPowerCell()){
                     map[i][j].setPowered(false);
                     map[i][j].setChecked(false);
@@ -110,7 +114,7 @@ public class Plant {
                 break;
             }
             for(int j = 0; j < width; j++){
-                if (!listener.cellChanged(i, j, current)){
+                if (!listener.cellChanged(i, j)){
                     end = true;
                     break;
                 }
@@ -125,7 +129,7 @@ public class Plant {
             cutPower();
             connectPower();
         }
-        listener.cellChanged(line, col, current);
+        listener.cellChanged(line, col);
         return true;
     }
  }

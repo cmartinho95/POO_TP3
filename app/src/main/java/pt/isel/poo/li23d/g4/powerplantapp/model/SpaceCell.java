@@ -14,7 +14,7 @@ public class SpaceCell extends Cell {
         getDirection();
     }
 
-    public boolean isConnected(){
+    public boolean checkConnections(){
         return false;
     }
 

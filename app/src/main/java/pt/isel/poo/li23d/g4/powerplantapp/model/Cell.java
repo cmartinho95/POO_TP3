@@ -14,14 +14,18 @@ public abstract class Cell {
     private final boolean actionable;
     private final boolean powerCell;
 
-    protected boolean connected;
+    private static ArrayList<Character> classLetters = new ArrayList<>();
+    private static ArrayList<String> classNames = new ArrayList<>();
+    public static final String PACKAGE_PATH = "pt.isel.poo.li23d.g4.powerplantapp.model.";
+
+    private boolean connected;
     private boolean powered;
     private boolean checked;
 
     protected ArrayList<Cell> connections = new ArrayList<>();
     protected ArrayList<Cell> previousConnections = new ArrayList<>();
 
-    public abstract boolean isConnected();
+    public abstract boolean checkConnections();
     public abstract boolean turnedWest();
     public abstract boolean turnedEast();
     public abstract boolean turnedNorth();
@@ -71,24 +75,42 @@ public abstract class Cell {
         return checked;
     }
 
-    public boolean getConnected(){
+    public boolean isConnected(){
         return connected;
     }
+
+    public void setConnected(boolean connected) {
+        this.connected = connected;
+    }
+
 
     public char getDirection() {
         return currentDirection;
     }
 
+    public void setDirection(char d) {
+        currentDirection = d;
+    }
 
     /* CORPO DA CLASSE*/
 
+    public static void setClasses(ArrayList<Character> letters, ArrayList<String> classes){
+        classLetters = letters;
+        classNames = classes;
+    }
+
     public static Cell newInstance(char c){
-        if (c == 'H') return new HouseCell();
-        else if (c == 'P') return new PowerCell();
-        else if (c == '-') return new LineCell();
-        else if (c == 'T') return new BranchCell();
-        else if (c == 'c') return new CurveCell();
-        else return new SpaceCell();
+        try{
+            int i = classLetters.indexOf(c);
+            String classname = classNames.get(i);
+            Class cellType = Class.forName(PACKAGE_PATH + classname);
+
+            return (Cell)cellType.newInstance();
+        }
+        catch(Exception e){
+            System.out.println("Error creating new Cell object"+ ": " + e.getMessage());
+        }
+        return null;
     }
 
     public void nextDirection() {
@@ -106,7 +128,7 @@ public abstract class Cell {
     public boolean touch() {
         if(!actionable) return false;
         nextDirection();
-        isConnected();
+        checkConnections();
 
         return true;
     }

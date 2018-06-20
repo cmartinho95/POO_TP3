@@ -6,10 +6,10 @@ public abstract class PointCell extends Cell {
         super(true, powerCell);
     }
 
-    public boolean isConnected(){
+    public boolean checkConnections(){
         previousConnections.clear();
         previousConnections.addAll(connections);
-        connected = false;
+        setConnected(false);
 
         char dir = getDirection();
 
@@ -37,7 +37,7 @@ public abstract class PointCell extends Cell {
         }
         removeConnections();
 
-        return connected;
+        return isConnected();
     }
 
     public boolean turnedWest(){
